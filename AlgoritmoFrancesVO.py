@@ -39,6 +39,9 @@ class PlanDePagos:
         self._VPSF = None #Valor presente del saldo final
         self._CP = None #Comision periodica
         self._vueltas = None #Numero de veces que se ha repetido el plan de pagos
+        self._AUX = None #Variable auxiliar
+        self._AUX2 = None #Variable auxiliar 2
+        self._AUX3 = None #Variable auxiliar 3
 
     @property
     def NDxA(self):
@@ -352,6 +355,30 @@ class PlanDePagos:
     def vueltas(self, valor):
         self._vueltas = valor
 
+    @property
+    def AUX(self):
+        return self._AUX
+
+    @AUX.setter
+    def AUX(self, valor):
+        self._AUX = valor
+
+    @property
+    def AUX2(self):
+        return self._AUX2
+
+    @AUX2.setter
+    def AUX2(self, valor):
+        self._AUX2 = valor
+
+    @property
+    def AUX3(self):
+        return self._AUX3
+
+    @AUX3.setter
+    def AUX3(self, valor):
+        self._AUX3 = valor
+
 class Ejecutar:
     def __init__(self, plan_de_pagos):
         self._plan = plan_de_pagos
@@ -361,7 +388,7 @@ class Ejecutar:
 
         while pdp._plan.NC <= pdp._plan.N: #Mientras que el periodo actual sea menor o igual al numero total de periodos de la deuda
             if pdp._plan.NC == 1: #Si el periodo es el primero
-                pdp._plan.SI = pdp._plan.C #El saldo inicial del periodo sera igual al prestamo mas los costos notariales y registrales
+                pdp._plan.SI = pdp._plan.AUX3 #El saldo inicial del periodo sera igual al prestamo mas los costos notariales y registrales
             else:
                 pdp._plan.SI = pdp._plan.SF #El saldo inicial del periodo actual sera igual al saldo inicial del periodo anterior
             
@@ -377,6 +404,7 @@ class Ejecutar:
                 pdp._plan.R = 0 #CUOTA
                 pdp._plan.A = 0 #AMORTIZACION
                 pdp._plan.SF = pdp._plan.SI + pdp._plan.I
+                
                 pdp._plan.C = pdp._plan.SF #El valor del prestamo ahora acumula intereses
                 
             elif pdp._plan.NC <= pdp._plan.NPG and pdp._plan.PG == "P": #Si el periodo actual es menor o igual que el numero total de periodos del periodo de gracia y es periodo de gracia parcial
@@ -399,12 +427,9 @@ class Ejecutar:
 
                 if pdp._plan.vueltas == 0:
                     pdp._plan.R = pdp._plan.C * (pdp._plan.TEP * (1 + pdp._plan.TEP)**(pdp._plan.N - pdp._plan.NPG)) / ((1 + pdp._plan.TEP)**(pdp._plan.N - pdp._plan.NPG) - 1)
-                
-                
+                    pdp._plan.AUX2 = pdp._plan.C
                 else:
-                    pdp._plan.VPSF = pdp._plan.SF / (1 + pdp._plan.TEA)**pdp._plan.NA
-                    pdp._plan.R2 = pdp._plan.VPSF * (pdp._plan.TEP * (1 + pdp._plan.TEP)**(pdp._plan.N - pdp._plan.NPG)) / ((1 + pdp._plan.TEP)**(pdp._plan.N - pdp._plan.NPG) - 1)
-                    pdp._plan.R += pdp._plan.R2
+                    pdp._plan.R = pdp._plan.AUX
                 
                 pdp._plan.A = pdp._plan.R - pdp._plan.I - pdp._plan.SD - pdp._plan.SR - pdp._plan.GA - pdp._plan.CP - pdp._plan.P #------------------------AQUI CAMBIA------------------------
                 pdp._plan.SF = pdp._plan.SI - pdp._plan.A
@@ -425,10 +450,13 @@ class Ejecutar:
             pdp._plan.VPSF = pdp._plan.SF / (1 + pdp._plan.TEA)**pdp._plan.NA
             pdp._plan.R2 = pdp._plan.VPSF * (pdp._plan.TEP * (1 + pdp._plan.TEP)**(pdp._plan.N - pdp._plan.NPG)) / ((1 + pdp._plan.TEP)**(pdp._plan.N - pdp._plan.NPG) - 1)
             pdp._plan.R += pdp._plan.R2
+            pdp._plan.AUX = pdp._plan.R
+            pdp._plan.C = pdp._plan.AUX2
 
             pdp._plan.NC = 1
             pdp._plan.vueltas += 1
             pdp.PDP()
+
 
         pdp._plan.IT = pdp._plan.RT - pdp._plan.AT #Hallar la cantidad total de los intereses
 
@@ -723,6 +751,7 @@ class Ejecutar:
 
         #Calcular prestamo C
         self._plan.C = self._plan.PV - self._plan.CI + self._plan.CN + self._plan.CR #Los costos notariales y registales se adjudican al monto del prestamo
+        self._plan.AUX3 = self._plan.C
 
         #Calcular numero total de cuotas
         self._plan.N = self._plan.NCxA * self._plan.NA #CAMBIO AQUI
@@ -764,43 +793,6 @@ class Ejecutar:
         print(self._plan.VPSF)
         print(self._plan.R2)
 
-        """
-
-        print("N\tTEA\t\tTEP\t\tSaldo Inicial\t\tIntereses\t\tCuota\t\tAmortizacion\t\tSaldo Final")
-        
-        while self._plan.NC <= self._plan.N: #Mientras que el periodo actual sea menor o igual al numero total de periodos de la deuda
-
-            if self._plan.NC == 1: #Si el periodo es el primero
-                self._plan.SI = self._plan.C #+ self._plan.CN + self._plan.CR #El saldo inicial del periodo sera igual al prestamo mas los costos notariales y registrales
-            else:
-                self._plan.SI = self._plan.SF #El saldo inicial del periodo actual sera igual al saldo inicial del periodo anterior
-            
-            self._plan.I = self._plan.TEP * self._plan.SI #Hallar el interes del periodo
-            
-            if self._plan.NC <= self._plan.NPG and self._plan.PG == "T": #Si el periodo actual es menor o igual que el numero total de periodos del periodo de gracia y es periodo de gracia total
-                self._plan.R = 0
-                self._plan.A = 0
-                self._plan.SF = self._plan.SI + self._plan.I
-                self._plan.C = self._plan.SF #El valor del prestamo ahora acumula intereses
-            elif self._plan.NC <= self._plan.NPG and self._plan.PG == "P": #Si el periodo actual es menor o igual que el numero total de periodos del periodo de gracia y es periodo de gracia parcial
-                self._plan.R = self._plan.I
-                self._plan.A = 0
-                self._plan.SF = self._plan.SI
-            else: #Si no hay periodo de gracia
-                self._plan.R = self._plan.C * (self._plan.TEP * (1 + self._plan.TEP)**(self._plan.N - self._plan.NPG)) / ((1 + self._plan.TEP)**(self._plan.N - self._plan.NPG) - 1)
-                self._plan.A = self._plan.R - self._plan.I - self._plan.GA - self._plan.P #------------------------AQUI CAMBIA------------------------
-                self._plan.SF = self._plan.SI - self._plan.A
-
-            self._plan.RT += self._plan.R #Hallar cantidad total de las cuotas
-
-            self._plan.AT += self._plan.A #Hallar la cantidad total de las amortizaciones
-
-            print(str(self._plan.NC) + "\t" + str(round(self._plan.TEA*100, 7)) + "%\t\t" + str(round(self._plan.TEP*100, 7)) + "%\t\t" + str(round(self._plan.SI, 2)) + "\t\t" + str(round(self._plan.I, 2)) + "\t\t" + str(round(self._plan.R, 2)) + "\t\t" + str(round(self._plan.A, 2)) + "\t\t" + str(round(self._plan.SF, 2)))
-
-            self._plan.NC += 1
-
-        self._plan.IT = self._plan.RT - self._plan.AT #Hallar la cantidad total de los intereses
-        """
         #-----------------------------CONTINUAR DESDE LA SESION 11_2 1 H 39 MIN-----------------------------
 
     def imprimirInformacion(self):
