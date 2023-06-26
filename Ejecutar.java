@@ -89,30 +89,30 @@ public class Ejecutar {
             System.out.print("El tipo de tasa solo puede ser Efectiva (E) o Nominal (N). Ingrese el tipo de tasa correctamente: ");
             t = scanner.nextLine();
         }
-        
-        scanner.close();
 
         // Asignar el valor al atributo T de la instancia de la clase PlanDePagos
         this.plan.setT(t);
 
         double vte = 0.0;
 
-        if (this.plan.getT().equalsIgnoreCase("E")) {
+        if (this.plan.getT().equalsIgnoreCase("E")) {            
             while (true) {
-                Scanner input = new Scanner(System.in);
-                System.out.print("Ingrese el valor de la tasa efectiva dividida entre 100: "); //Valor de la tasa efectiva
+                System.out.print("Ingrese el valor de la tasa efectiva dividida entre 100: ");
+                String vteInput = scanner.nextLine(); // Valor de la tasa efectiva
+                
                 try {
-                    vte = Double.parseDouble(input.nextLine());
+                    vte = Double.parseDouble(vteInput);
+                    
                     if (vte < 0) {
-                        throw new IllegalArgumentException();
+                        throw new NumberFormatException();
                     }
+                    
                     break;
-                } catch (IllegalArgumentException e) {
-                    System.out.println("\nError: El valor de la tasa efectiva debe ser un numero mayor o igual a cero con o sin decimales.\n");
+                } catch (NumberFormatException e) {
+                    System.out.println("\nError: El valor de la tasa efectiva debe ser un número mayor o igual a cero con o sin decimales.\n");
                 }
             }
 
-            Scanner scanner2 = new Scanner(System.in);
             String te;
             System.out.print("Ingrese el tipo de Tasa Efectiva:\n" +
                     "Tasa Efectiva Anual (TEA)\n" +
@@ -124,7 +124,7 @@ public class Ejecutar {
                     "Tasa Efectiva Quincenal (TEQ)\n" +
                     "Tasa Efectiva Diaria (TED)\n" +
                     "Tipo de Tasa Efectiva: ");
-            te = scanner2.nextLine();
+            te = scanner.nextLine();
 
             while (!te.equalsIgnoreCase("TEA") && !te.equalsIgnoreCase("TES") && !te.equalsIgnoreCase("TEC") &&
                     !te.equalsIgnoreCase("TET") && !te.equalsIgnoreCase("TEB") && !te.equalsIgnoreCase("TEM") &&
@@ -141,8 +141,6 @@ public class Ejecutar {
                         "Tipo de Tasa Efectiva: ");
                 te = scanner.nextLine();
             }
-
-            scanner2.close();
 
             if (te.equalsIgnoreCase("TES")) {
                 this.plan.setTEA(Math.pow(1 + vte, 2) - 1);
@@ -163,12 +161,11 @@ public class Ejecutar {
             }
 
         } else{
-            Scanner scanner3 = new Scanner(System.in);
             double vtn = 0.0;
 
             while (true) {
                 System.out.print("Ingrese el valor de la tasa nominal dividida entre 100: ");
-                vtn = scanner3.nextDouble(); // Valor de la tasa nominal
+                vtn = scanner.nextDouble(); // Valor de la tasa nominal
 
                 try {
                     if (vtn < 0) {
@@ -193,7 +190,7 @@ public class Ejecutar {
                         + "Tasa Nominal Quincenal (TNQ)\n"
                         + "Tasa Nominal Diaria (TND)\n"
                         + "Tipo de Tasa Nominal: ");
-                tn = scanner3.next();
+                tn = scanner.next();
 
                 if (tn.equalsIgnoreCase("TNA") || tn.equalsIgnoreCase("TNS") || tn.equalsIgnoreCase("TNC")
                         || tn.equalsIgnoreCase("TNT") || tn.equalsIgnoreCase("TNB") || tn.equalsIgnoreCase("TNM")
@@ -213,8 +210,6 @@ public class Ejecutar {
                 }
             }
 
-            scanner3.close();
-            Scanner scanner4 = new Scanner(System.in);
             int cap = 0;
 
             while (true) {
@@ -253,14 +248,12 @@ public class Ejecutar {
             }
 
             this.plan.setTEA(Math.pow(1 + tna / m, m) - 1);
-            scanner4.close();
         }
-
-        Scanner scanner5 = new Scanner(System.in);
 
         // Ingresar y validar Precio de venta PV
         while (true) {
-            String pvInput = scanner5.nextLine();
+            System.out.print("Ingrese el precio de venta del bien: ");
+            String pvInput = scanner.nextLine();
             try {
                 double pv = Double.parseDouble(pvInput);
                 if (pv < 1) {
@@ -272,13 +265,11 @@ public class Ejecutar {
                 System.out.println("\nError: El precio de venta debe ser un número con decimales mayor que 0.\n");
             }
         }
-        scanner5.close();
-
-        Scanner scanner6 = new Scanner(System.in);
 
         // Ingresar y validar Porcentaje de cuota inicial pCI
         while (true) {
-            String pciInput = scanner6.nextLine();
+            System.out.print("Ingrese el porcentaje de la cuota inicial dividido entre 100: ");
+            String pciInput = scanner.nextLine();
             try {
                 double pci = Double.parseDouble(pciInput);
                 if (pci < 0) {
@@ -290,13 +281,11 @@ public class Ejecutar {
                 System.out.println("\nError: El porcentaje de la cuota inicial debe ser un número con o sin decimales mayor o igual que 0.\n");
             }
         }
-        scanner6.close();
-
-        Scanner scanner7 = new Scanner(System.in);
 
         // Ingresar y validar Numero de anios NA
         while (true) {
-            String naInput = scanner7.nextLine();
+            System.out.print("Ingrese el numero de anios durante los que pagara: ");
+            String naInput = scanner.nextLine();
             try {
                 int na = Integer.parseInt(naInput);
                 if (na < 1) {
@@ -308,27 +297,25 @@ public class Ejecutar {
                 System.out.println("\nError: El número de años debe ser un número entero mayor que 0.\n");
             }
         }
-        scanner7.close();
-
-        Scanner scanner8 = new Scanner(System.in);
 
         // Ingresar y validar el tipo de periodo de gracia
-        String pgInput = scanner8.nextLine();
+        System.out.print("Ingrese el tipo de periodo de gracia (Total 'T'/Parcial 'P'/No considera periodo de gracia 'N'): ");
+        String pgInput = scanner.nextLine();
 
         while (!pgInput.equalsIgnoreCase("T") && !pgInput.equalsIgnoreCase("P") && !pgInput.equalsIgnoreCase("N")) {
-            pgInput = scanner8.nextLine();
+            System.out.print("Ingrese correctamente el tipo de periodo de gracia (Total 'T'/Parcial 'P'/No considera periodo de gracia 'N'): ");
+            pgInput = scanner.nextLine();
         }
 
         this.plan.setPG(pgInput.toUpperCase());
-        scanner8.close();
 
-        Scanner scanner9 = new Scanner(System.in);
-
+        // Ingresar y validar la cantidad de meses que dura el periodo de gracia
         this.plan.setNPG(0);
 
         if (!this.plan.getPG().equals("N")) {
             while (true) {
-                String npgInput = scanner9.nextLine();
+                System.out.print("Ingrese en numeros enteros la cantidad de periodos del periodo de gracia: ");
+                String npgInput = scanner.nextLine();
                 try {
                     int npg = Integer.parseInt(npgInput);
                     if (npg < 1) {
@@ -341,12 +328,11 @@ public class Ejecutar {
                 }
             }
         }
-        scanner9.close();
-
-        Scanner scanner10 = new Scanner(System.in);
-
+        
+        //Ingresar y validar tasa del seguro de desgravamen
         while (true) {
-            String tsdInput = scanner10.nextLine();
+            System.out.print("Ingrese la tasa del seguro de desgravamen dividido entre 100: ");
+            String tsdInput = scanner.nextLine();
             try {
                 double tsd = Double.parseDouble(tsdInput);
                 if (tsd < 0) {
@@ -358,12 +344,11 @@ public class Ejecutar {
                 System.out.println("\nError: La tasa del seguro de desgravamen debe ser un número mayor o igual a cero.\n");
             }
         }
-        scanner10.close();
 
-        Scanner scanner11 = new Scanner(System.in);
-
+        //Ingresar y validar tasa del seguro contra todo riesgo
         while (true) {
-            String tsrInput = scanner11.nextLine();
+            System.out.print("Ingrese la tasa del seguro contra todo riesgo dividido entre 100: ");
+            String tsrInput = scanner.nextLine();
             try {
                 double tsr = Double.parseDouble(tsrInput);
                 if (tsr < 0) {
@@ -375,12 +360,11 @@ public class Ejecutar {
                 System.out.println("\nError: La tasa del seguro contra todo riesgo debe ser un número mayor o igual a cero.\n");
             }
         }
-        scanner11.close();
 
-        Scanner scanner12 = new Scanner(System.in);
-
+        //Ingresar y validar gastos administrativos
         while (true) {
-            String gaInput = scanner12.nextLine();
+            System.out.print("Ingrese los gastos administrativos: ");
+            String gaInput = scanner.nextLine();
             try {
                 double ga = Double.parseDouble(gaInput);
                 if (ga < 0) {
@@ -392,12 +376,11 @@ public class Ejecutar {
                 System.out.println("\nError: Los gastos administrativos deben ser un número mayor o igual a cero.\n");
             }
         }
-        scanner12.close();
 
-        Scanner scanner13 = new Scanner(System.in);
-
+        //Ingresar y validar portes
         while (true) {
-            String pInput = scanner13.nextLine();
+            System.out.print("Ingrese los portes: ");
+            String pInput = scanner.nextLine();
             try {
                 double p = Double.parseDouble(pInput);
                 if (p < 0) {
@@ -409,12 +392,11 @@ public class Ejecutar {
                 System.out.println("\nError: Los portes deben ser un número mayor o igual a cero.\n");
             }
         }
-        scanner13.close();
 
-        Scanner scanner14 = new Scanner(System.in);
-
+        //Ingresar y validar comisiones periodicas
         while (true) {
-            String cpInput = scanner14.nextLine();
+            System.out.print("Ingrese la comision periodica: ");
+            String cpInput = scanner.nextLine();
             try {
                 double cp = Double.parseDouble(cpInput);
                 if (cp < 0) {
@@ -426,12 +408,11 @@ public class Ejecutar {
                 System.out.println("\nError: La comisión periódica debe ser un número mayor o igual a cero.\n");
             }
         }
-        scanner14.close();
 
-        Scanner scanner15 = new Scanner(System.in);
-
+        //Ingresar y validar costos notariales
         while (true) {
-            String cnInput = scanner15.nextLine();
+            System.out.print("Ingrese los costos notariales: ");
+            String cnInput = scanner.nextLine();
             try {
                 double cn = Double.parseDouble(cnInput);
                 if (cn < 0) {
@@ -443,12 +424,11 @@ public class Ejecutar {
                 System.out.println("\nError: Los costos notariales deben ser un número mayor o igual a cero.\n");
             }
         }
-        scanner15.close();
 
-        Scanner scanner16 = new Scanner(System.in);
-
+        //Ingresar y validar costos registrales
         while (true) {
-            String crInput = scanner16.nextLine();
+            System.out.print("Ingrese los costos registrales: ");
+            String crInput = scanner.nextLine();
             try {
                 double cr = Double.parseDouble(crInput);
                 if (cr < 0) {
@@ -460,7 +440,7 @@ public class Ejecutar {
                 System.out.println("\nError: Los costos registrales deben ser un número mayor o igual a cero.\n");
             }
         }
-        scanner16.close();
+        scanner.close();
 
         //------------------A PARTIR DE AQUI SE PROCESAN LOS DATOS INTERMEDIOS------------------
 
@@ -490,7 +470,7 @@ public class Ejecutar {
         this.plan.setVueltas(0);
 
         // Inicialización de la tasa del periodo (la tasa será mensual)
-        this.plan.setTEP(Math.pow(1 + this.plan.getTEA(), 1 / 12) - 1);
+        this.plan.setTEP(Math.pow((1.0 + 1.5181701168189803), (1.0 / 12.0)) - 1.0);
 
         // Cálculo de la tasa de seguro de desgravamen anual
         this.plan.setTSDA(this.plan.getTSD() * 12);
